@@ -15,8 +15,8 @@ int input() {
       Handshake();
       break;
     case 1:
-      lcd.setCursor(0,0);
-      lcd.print("Connected    "); // Displays Connected instead of Connected LED
+      lcd.setCursor(7,0);
+      lcd.print(" *"); // Displays Connected instead of Connected LED
       break;
     }
 
@@ -29,8 +29,8 @@ int input() {
     {
       deadtimeOld = now;
       Connected = false;
-      lcd.setCursor(0,0);
-      lcd.print("Not Connected");   // Opposite of above
+      lcd.setCursor(7,0);
+      lcd.print(" ?");   // Opposite of above
  
     }    
   }

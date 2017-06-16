@@ -4,9 +4,9 @@
  * Modified: ohMorrissey
  * For Rocket Use only
  * http://forum.kerbalspaceprogram.com/index.php?/topic/159865-for-rocket-use-only-a-kerbal-simpit-build-log/
- * Kerbal Space Program LCD HUD Speed Display
- * V:00.01.1
- * 9/5/17
+ * Kerbal Space Program LCD HUD Display
+ * V:20170527
+ * 
  */
 
 //macro
@@ -95,6 +95,43 @@ struct HandShakePacket
   byte M3;
 };
 
+struct Calculations
+{
+   float Liq;
+   float Oxi;
+   float Mono;
+   float Elec;
+   float Secs;
+   float Mins;
+   float Hrs;
+   float Days;
+   //char SOI[7];
+   float Vel;
+};
+
+struct Warnings 
+{
+  bool Liq;
+  bool Mono;
+  bool Elec;
+  bool Gee; 
+  bool Alt;
+  bool Heat;
+  bool Orbit;
+  bool Atmo;
+};
+
+byte delta[8] = {
+  B00100,
+  B00100,
+  B01010,
+  B01010,
+  B01010,
+  B10001,
+  B11111,
+};
+
+
 /*struct ControlPacket {
   byte id;
   byte MainControls;                  //SAS RCS Lights Gear Brakes Precision Abort Stage
@@ -115,49 +152,76 @@ struct HandShakePacket
 */
 #include <LiquidCrystal.h>
 
+
 // initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(12, 11, 9, 8, 7, 6, 5, 4, 3, 2);
 
-   int time = 0;
-
+   int Display=1;
+   int DispPrev=0;
+   int DispPin = 13;
+   bool DispPinPrev = 0;
+   int timer = 0;
 
 HandShakePacket HPacket;
 VesselData VData;
 //ControlPacket CPacket;
+Calculations Calc;
+Warnings Warn;
 
 void setup() {
   Serial.begin(38400);
-
+  pinMode(DispPin, INPUT_PULLUP);
+  
 
   InitTxPackets();
-
+  Display = 1;
+  DispPrev = 0;
 
  
     lcd.begin(16, 4);
-    lcd.clear();
-    lcd.print("Connecting");
-    delay(200);
-    lcd.print(".");
-    delay(200);
-    lcd.print(".");
-    delay(200);
-    lcd.print(".");
-    delay(200);
-    lcd.clear();
-    delay(200);
-    lcd.setCursor(0,3);
-  lcd.print("Speed:");
+    ConnectDisplay();
+    lcd.createChar(0, delta); 
+    
 }
 
 void loop()
 {
   input();
-  if (time==50){
-  lcd.setCursor(8,3);
-  lcd.print(VData.Vsurf);
-  lcd.print("m/s   ");
-  time=0;
+  
+if(timer==100){
+  
+  MakeCalc();
+  
+   if(digitalRead(DispPin)!=DispPinPrev){
+        if(digitalRead(DispPin)==HIGH){
+           lcd.clear();
+           Display++;
+        }
+        DispPinPrev= digitalRead(DispPin);
   }
-  time++;
+  
+  if (Display > 11){
+        Display = 1;
+  } 
+  
+  if(Display==DispPrev){
+        DisplayScreen(Display);
+  }
+  
+  DisplayInfo(Display);  
+ 
+  DispPrev = Display;
+  }
+  
+timer++;
+
+if (timer > 100)
+timer=0;
+delay(1);
+
+
+
+
 }
+
 

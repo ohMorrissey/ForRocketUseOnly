@@ -11,4 +11,9 @@ void Handshake(){  // Removed LED
   //delay(1000);
 }
 
+void InitTxPackets() {
+  HPacket.id = 0;  
+//  CPacket.id = 101;
+}
+
 
